@@ -95,6 +95,11 @@ CREATE TABLE `ng_words` (
 ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 CREATE INDEX ng_words_word ON ng_words(`word`);
 
+-- パフォーマンス改善用インデックス
+CREATE INDEX idx_reactions_livestream_id ON reactions(`livestream_id`);
+CREATE INDEX idx_livecomments_livestream_id ON livecomments(`livestream_id`);
+CREATE INDEX idx_livestream_tags_livestream_id ON livestream_tags(`livestream_id`);
+
 -- ライブ配信に対するリアクション
 CREATE TABLE `reactions` (
   `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
