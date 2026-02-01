@@ -4,6 +4,7 @@ package main
 // sqlx的な参考: https://jmoiron.github.io/sqlx/
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"log"
 	"net"
@@ -27,10 +28,13 @@ const (
 	powerDNSSubdomainAddressEnvKey = "ISUCON13_POWERDNS_SUBDOMAIN_ADDRESS"
 )
 
+const iconDir = "../icons"
+
 var (
 	powerDNSSubdomainAddress string
 	dbConn                   *sqlx.DB
 	secret                   = []byte("isucon13_session_cookiestore_defaultsecret")
+	fallbackIconHash         string
 )
 
 func init() {
@@ -199,6 +203,21 @@ func main() {
 		os.Exit(1)
 	}
 	powerDNSSubdomainAddress = subdomainAddr
+
+	// fallbackIconHash を事前計算
+	fallbackImageBytes, err := os.ReadFile(fallbackImage)
+	if err != nil {
+		e.Logger.Errorf("failed to read fallback image: %v", err)
+		os.Exit(1)
+	}
+	hash := sha256.Sum256(fallbackImageBytes)
+	fallbackIconHash = fmt.Sprintf("%x", hash)
+
+	// icons ディレクトリ作成
+	if err := os.MkdirAll(iconDir, 0755); err != nil {
+		e.Logger.Errorf("failed to create icon directory: %v", err)
+		os.Exit(1)
+	}
 
 	// HTTPサーバ起動
 	listenAddr := net.JoinHostPort("", strconv.Itoa(listenPort))
